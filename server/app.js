@@ -17,8 +17,8 @@ app.use(
 );
 app.use(express.json());
 
-app.use("/contact", contactRoutes);
-app.use("/hire", hireRoutes);
+app.use("/api/contact", contactRoutes);
+app.use("/api/hire", hireRoutes);
 
 app.get("/", (req, res) => {
   res.send("Welcome to the Portfolio API");
