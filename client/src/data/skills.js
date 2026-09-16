@@ -1,0 +1,17 @@
+export const skills = [
+  { name: 'React', level: 95, category: 'Frontend', icon: 'SiReact', color: '#61DAFB' },
+  { name: 'Next.js', level: 88, category: 'Frontend', icon: 'SiNextdotjs', color: '#000000' },
+  { name: 'JavaScript', level: 95, category: 'Language', icon: 'SiJavascript', color: '#F7DF1E' },
+  { name: 'TypeScript', level: 85, category: 'Language', icon: 'SiTypescript', color: '#3178C6' },
+  { name: 'Redux', level: 82, category: 'Frontend', icon: 'SiRedux', color: '#764ABC' },
+  { name: 'Tailwind CSS', level: 92, category: 'Frontend', icon: 'SiTailwindcss', color: '#06B6D4' },
+  { name: 'Node.js', level: 90, category: 'Backend', icon: 'SiNodedotjs', color: '#5FA04E' },
+  { name: 'Express', level: 90, category: 'Backend', icon: 'SiExpress', color: '#000000' },
+  { name: 'MongoDB', level: 87, category: 'Database', icon: 'SiMongodb', color: '#47A248' },
+  { name: 'REST API', level: 93, category: 'Backend', icon: 'SiPostman', color: '#FF6C37' },
+  { name: 'JWT Auth', level: 85, category: 'Backend', icon: 'SiJsonwebtokens', color: '#000000' },
+  { name: 'Firebase', level: 78, category: 'Backend', icon: 'SiFirebase', color: '#FFCA28' },
+  { name: 'Docker', level: 74, category: 'DevOps', icon: 'SiDocker', color: '#2496ED' },
+  { name: 'Git & GitHub', level: 92, category: 'Tools', icon: 'SiGithub', color: '#181717' },
+  { name: 'Cloudinary', level: 80, category: 'Tools', icon: 'SiCloudinary', color: '#3448C5' },
+]
