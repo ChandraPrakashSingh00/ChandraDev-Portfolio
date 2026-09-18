@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Routes, Route } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import Loader from './components/common/Loader'
 import Navbar from './components/layout/Navbar'
 import Footer from './components/layout/Footer'
@@ -13,34 +12,39 @@ import CommandPalette from './components/common/CommandPalette'
 import Home from './pages/Home'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsConditions from './pages/TermsConditions'
+import { ScrollTrigger } from './animations/gsap'
+import { usePageIntro } from './animations/pageLoad'
+import { useSmoothScroll, resetScroll } from './animations/smoothScroll'
 
 export default function App() {
   const [loading, setLoading] = useState(true)
+  const { pathname } = useLocation()
 
+  useSmoothScroll()
+  usePageIntro(!loading)
+
+  // New route: start at the top and re-measure scroll-driven animations.
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 1100)
-    return () => clearTimeout(t)
-  }, [])
+    resetScroll()
+    const id = requestAnimationFrame(() => ScrollTrigger.refresh())
+    return () => cancelAnimationFrame(id)
+  }, [pathname])
 
   return (
     <div className="relative bg-bg font-body text-text">
       <DotBackground />
-      <Loader show={loading} />
+      <Loader onDone={() => setLoading(false)} />
       <CustomCursor />
       <ScrollProgressBar />
       <Navbar />
 
-      <motion.main
-        initial={{ opacity: 0 }}
-        animate={{ opacity: loading ? 0 : 1 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-      >
+      <main>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-conditions" element={<TermsConditions />} />
         </Routes>
-      </motion.main>
+      </main>
 
       <Footer />
       <WhatsAppButton />

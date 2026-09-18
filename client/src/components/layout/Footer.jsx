@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Github, Linkedin, Twitter, Mail, Phone, MapPin, ArrowUpRight } from 'lucide-react'
+import { useReveal } from '../../animations/scrollReveal'
 
 const QUICK_LINKS = [
   { id: 'about', label: 'About' },
@@ -17,15 +18,16 @@ const SOCIALS = [
 
 export default function Footer() {
   const year = new Date().getFullYear()
+  const scope = useReveal()
 
   return (
-    <footer className="relative overflow-hidden bg-slate-900 text-slate-300">
+    <footer ref={scope} className="relative overflow-hidden bg-slate-900 text-slate-300">
       {/* subtle brand glow */}
       <div className="pointer-events-none absolute -top-24 left-1/4 h-72 w-72 rounded-full bg-primary/20 blur-[110px]" />
       <div className="pointer-events-none absolute -bottom-24 right-1/4 h-72 w-72 rounded-full bg-bluesec/20 blur-[110px]" />
 
       <div className="section-container relative py-16">
-        <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
+        <div data-reveal-stagger className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link to="/" className="font-display text-2xl font-bold text-white">
@@ -43,7 +45,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label={label}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-300 transition-all hover:-translate-y-1 hover:border-primary/60 hover:text-primary"
+                  className="icon-link flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-300 hover:border-primary/60 hover:bg-white/10 hover:text-primary"
                 >
                   <Icon size={17} />
                 </a>
@@ -60,7 +62,7 @@ export default function Footer() {
                   <Link
                     to="/"
                     state={{ scrollTo: l.id }}
-                    className="text-sm text-slate-400 transition-colors hover:text-primary"
+                    className="link-underline text-sm text-slate-400 transition-colors duration-300 hover:text-primary"
                   >
                     {l.label}
                   </Link>
@@ -75,7 +77,7 @@ export default function Footer() {
             <ul className="mt-4 space-y-3">
               <li className="flex items-start gap-2.5 text-sm text-slate-400">
                 <Mail size={15} className="mt-0.5 shrink-0 text-primary" />
-                <a href="mailto:hello@chandraprakash.dev" className="hover:text-primary">
+                <a href="mailto:hello@chandraprakash.dev" className="transition-colors duration-300 hover:text-primary">
                   hello@chandraprakash.dev
                 </a>
               </li>
@@ -91,9 +93,10 @@ export default function Footer() {
             <Link
               to="/"
               state={{ scrollTo: 'contact' }}
-              className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
+              className="group mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary"
             >
-              Start a project <ArrowUpRight size={14} />
+              <span className="link-underline">Start a project</span>
+              <ArrowUpRight size={14} className="transition-transform duration-300 ease-premium group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </Link>
           </div>
         </div>

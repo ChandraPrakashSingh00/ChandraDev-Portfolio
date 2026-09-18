@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 
-export function useActiveSection(sectionIds) {
+// `resetKey` (e.g. the route pathname) re-attaches the observer when the
+// section elements are re-mounted.
+export function useActiveSection(sectionIds, resetKey) {
   const [active, setActive] = useState(sectionIds[0])
 
   useEffect(() => {
@@ -21,7 +23,7 @@ export function useActiveSection(sectionIds) {
     })
 
     return () => observer.disconnect()
-  }, [sectionIds])
+  }, [sectionIds, resetKey])
 
   return active
 }

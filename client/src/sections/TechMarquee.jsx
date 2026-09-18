@@ -1,3 +1,4 @@
+import { useReveal } from '../animations/scrollReveal'
 import {
   SiReact, SiNodedotjs, SiMongodb, SiExpress, SiJavascript, SiTypescript,
   SiTailwindcss, SiNextdotjs, SiRedux, SiDocker, SiGit, SiFigma, SiPostman, SiFirebase,
@@ -23,6 +24,7 @@ const TECHS = [
 function Track({ reverse }) {
   return (
     <div
+      data-marquee-track
       className="flex shrink-0 items-center gap-4"
       style={{
         animation: `${reverse ? 'marquee-reverse' : 'marquee'} 32s linear infinite`,
@@ -31,7 +33,7 @@ function Track({ reverse }) {
       {TECHS.map((t, i) => (
         <div
           key={`${t.name}-${i}`}
-          className="flex items-center gap-2.5 whitespace-nowrap rounded-full border border-border bg-card px-5 py-2.5 shadow-card"
+          className="flex items-center gap-2.5 whitespace-nowrap rounded-full border border-border bg-card px-5 py-2.5 shadow-card transition-colors duration-300 hover:border-primary/40"
         >
           <t.icon size={18} color={t.color} />
           <span className="text-sm font-medium text-text">{t.name}</span>
@@ -42,9 +44,11 @@ function Track({ reverse }) {
 }
 
 export default function TechMarquee() {
+  const scope = useReveal()
+
   return (
-    <section className="border-y border-border bg-secondary/30 py-10">
-      <div className="section-container mb-6 text-center">
+    <section ref={scope} className="group/marquee border-y border-border bg-secondary/30 py-10">
+      <div data-reveal="fade" className="section-container mb-6 text-center">
         <span className="eyebrow">Tech I work with</span>
       </div>
 
@@ -57,6 +61,7 @@ export default function TechMarquee() {
           0% { transform: translateX(-50%); }
           100% { transform: translateX(0); }
         }
+        .group\/marquee:hover [data-marquee-track] { animation-play-state: paused !important; }
       `}</style>
 
       <div className="relative overflow-hidden">

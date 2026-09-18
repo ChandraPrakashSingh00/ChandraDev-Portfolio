@@ -18,6 +18,8 @@ export default function DotBackground() {
     const RADIUS = 1.15
 
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    // Touch devices and reduced-motion users get a static grid (no rAF loop).
+    const isStatic = reduceMotion || !window.matchMedia('(hover: hover) and (pointer: fine)').matches
 
     const resize = () => {
       canvas.width = window.innerWidth * window.devicePixelRatio
@@ -26,6 +28,7 @@ export default function DotBackground() {
       canvas.style.height = `${window.innerHeight}px`
       ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0)
       buildDots()
+      if (isStatic) drawFrame()
     }
 
     const buildDots = () => {
@@ -54,12 +57,11 @@ export default function DotBackground() {
     }
 
     let t = 0
-    const draw = () => {
-      t += 0.016
+    const drawFrame = () => {
       ctx.clearRect(0, 0, window.innerWidth, window.innerHeight)
 
       for (const d of dots) {
-        const drift = reduceMotion ? 0 : Math.sin(t * d.speed + d.phase) * 3
+        const drift = isStatic ? 0 : Math.sin(t * d.speed + d.phase) * 3
         const x = d.baseX
         const y = d.baseY + drift
 
@@ -78,21 +80,35 @@ export default function DotBackground() {
           : `rgba(100, 116, 139, ${alpha})`
         ctx.fill()
       }
+    }
 
+    const draw = () => {
+      t += 0.016
+      drawFrame()
       raf = requestAnimationFrame(draw)
+    }
+
+    // Pause the loop while the tab is hidden.
+    const onVisibility = () => {
+      cancelAnimationFrame(raf)
+      if (!document.hidden) raf = requestAnimationFrame(draw)
     }
 
     resize()
     window.addEventListener('resize', resize)
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('mouseleave', onLeave)
-    draw()
+    if (!isStatic) {
+      window.addEventListener('mousemove', onMove, { passive: true })
+      document.documentElement.addEventListener('mouseleave', onLeave)
+      document.addEventListener('visibilitychange', onVisibility)
+      draw()
+    }
 
     return () => {
       cancelAnimationFrame(raf)
       window.removeEventListener('resize', resize)
       window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('mouseleave', onLeave)
+      document.documentElement.removeEventListener('mouseleave', onLeave)
+      document.removeEventListener('visibilitychange', onVisibility)
     }
   }, [])
 

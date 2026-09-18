@@ -34,6 +34,9 @@ export default {
         'spin-slow': 'spin 12s linear infinite',
         'gradient-move': 'gradient-move 8s ease infinite',
         blink: 'blink 1s step-end infinite',
+        'float-soft': 'float-soft 7s ease-in-out infinite',
+        nudge: 'nudge 2.4s ease-in-out infinite',
+        flicker: 'flicker 0.14s ease-in-out infinite alternate',
       },
       keyframes: {
         float: {
@@ -44,10 +47,25 @@ export default {
           '0%, 100%': { backgroundPosition: '0% 50%' },
           '50%': { backgroundPosition: '100% 50%' },
         },
+        'float-soft': {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-8px)' },
+        },
+        flicker: {
+          '0%': { transform: 'scaleY(1) scaleX(1)' },
+          '100%': { transform: 'scaleY(0.82) scaleX(0.92)' },
+        },
+        nudge: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(5px)' },
+        },
         blink: {
           '0%, 100%': { opacity: 1 },
           '50%': { opacity: 0 },
         },
+      },
+      transitionTimingFunction: {
+        premium: 'cubic-bezier(0.22, 1, 0.36, 1)',
       },
       backgroundSize: {
         '200': '200% 200%',

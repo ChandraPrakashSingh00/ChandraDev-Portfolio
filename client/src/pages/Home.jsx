@@ -13,19 +13,17 @@ import Testimonials from '../sections/Testimonials'
 import FAQ from '../sections/FAQ'
 import CTABanner from '../sections/CTABanner'
 import Contact from '../sections/Contact'
+import { scrollToSection } from '../animations/smoothScroll'
 
 export default function Home() {
   const location = useLocation()
 
   useEffect(() => {
     const target = location.state?.scrollTo
-    if (target) {
-      const el = document.getElementById(target)
-      if (el) {
-        setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 80)
-      }
-      window.history.replaceState({}, document.title)
-    }
+    if (!target) return
+    const t = setTimeout(() => scrollToSection(target), 80)
+    window.history.replaceState({}, document.title)
+    return () => clearTimeout(t)
   }, [location.state])
 
   return (

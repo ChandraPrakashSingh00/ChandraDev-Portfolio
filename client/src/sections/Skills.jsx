@@ -1,5 +1,3 @@
-import { useRef, useState } from 'react'
-import { motion } from 'framer-motion'
 import {
   SiReact,
   SiNextdotjs,
@@ -19,6 +17,7 @@ import {
 } from 'react-icons/si'
 import { Code2 } from 'lucide-react'
 import { skills } from '../data/skills'
+import { useReveal } from '../animations/scrollReveal'
 
 const ICON_MAP = {
   SiReact,
@@ -38,43 +37,21 @@ const ICON_MAP = {
   SiCloudinary,
 }
 
-function SkillCard({ skill, index }) {
-  const cardRef = useRef(null)
-  const [rotate, setRotate] = useState({ x: 0, y: 0 })
+function SkillCard({ skill }) {
   const Icon = ICON_MAP[skill.icon] || Code2
 
-  const handleMove = (e) => {
-    const rect = cardRef.current.getBoundingClientRect()
-    const px = (e.clientX - rect.left) / rect.width - 0.5
-    const py = (e.clientY - rect.top) / rect.height - 0.5
-    setRotate({ x: py * -10, y: px * 10 })
-  }
-
   return (
-    <motion.div
-      ref={cardRef}
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ delay: (index % 5) * 0.06, duration: 0.5 }}
-      onMouseMove={handleMove}
-      onMouseLeave={() => setRotate({ x: 0, y: 0 })}
-      style={{
-        transform: `perspective(700px) rotateX(${rotate.x}deg) rotateY(${rotate.y}deg)`,
-        transition: 'transform 0.15s ease-out',
-      }}
-      className="group relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-card transition-colors hover:border-primary/50"
-    >
-      {/* glow blob on hover */}
+    <div className="card-lift group relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-card hover:border-primary/40 hover:bg-white">
+      {/* soft tint on hover */}
       <div
-        className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-30"
+        className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-25"
         style={{ background: skill.color }}
       />
 
       <div className="relative flex items-start justify-between">
         <div className="flex items-center gap-3">
           <span
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-white shadow-sm transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:scale-105"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-white shadow-sm transition-transform duration-500 ease-premium group-hover:scale-110"
             style={{ color: skill.color }}
           >
             <Icon size={22} />
@@ -90,22 +67,22 @@ function SkillCard({ skill, index }) {
       </div>
 
       <div className="relative mt-5 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
-        <motion.div
-          initial={{ width: 0 }}
-          whileInView={{ width: `${skill.level}%` }}
-          viewport={{ once: true }}
-          transition={{ duration: 1, ease: 'easeOut', delay: 0.1 }}
+        <div
+          data-reveal-bar
+          style={{ width: `${skill.level}%` }}
           className="h-full rounded-full bg-brand-gradient"
         />
       </div>
-    </motion.div>
+    </div>
   )
 }
 
 export default function Skills() {
+  const scope = useReveal()
+
   return (
-    <section id="skills" className="section-container py-28">
-      <div className="mx-auto max-w-2xl text-center">
+    <section ref={scope} id="skills" className="section-container py-28">
+      <div data-reveal="up" className="mx-auto max-w-2xl text-center">
         <span className="eyebrow">Skills</span>
         <h2 className="mt-3 font-display text-3xl font-bold text-slate-900 sm:text-4xl">
           Tools I build <span className="gradient-text">production software</span> with
@@ -116,9 +93,9 @@ export default function Skills() {
         </p>
       </div>
 
-      <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {skills.map((skill, i) => (
-          <SkillCard key={skill.name} skill={skill} index={i} />
+      <div data-reveal-stagger className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {skills.map((skill) => (
+          <SkillCard key={skill.name} skill={skill} />
         ))}
       </div>
     </section>

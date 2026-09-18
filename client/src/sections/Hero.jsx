@@ -1,61 +1,77 @@
-import { useEffect, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
+import { useRef } from 'react'
 import { TypeAnimation } from 'react-type-animation'
-import { Download, ArrowRight, ChevronDown, Github, Linkedin, Instagram} from 'lucide-react'
+import { Download, ArrowRight, ChevronDown, Github, Linkedin, Instagram } from 'lucide-react'
+import { gsap, useGSAP, MQ } from '../animations/gsap'
+import { useMagnetic } from '../animations/magnetic'
+import { scrollToSection } from '../animations/smoothScroll'
+
+const HEADING = [
+  { text: 'Hi,' },
+  { text: "I'm" },
+  { text: 'Chandra', accent: true },
+  { text: 'Prakash', accent: true },
+]
+
+const SOCIALS = [
+  { icon: Github, href: 'https://github.com', label: 'GitHub' },
+  { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
+  { icon: Instagram, href: 'https://instagram.com', label: 'Instagram' },
+]
 
 export default function Hero() {
-  const sceneRef = useRef(null)
-  const [tilt, setTilt] = useState({ x: 0, y: 0 })
+  const visualRef = useRef(null)
+  const primaryRef = useMagnetic()
+  const secondaryRef = useMagnetic()
 
-  useEffect(() => {
-    const handle = (e) => {
-      const { innerWidth, innerHeight } = window
-      const x = (e.clientX / innerWidth - 0.5) * 2
-      const y = (e.clientY / innerHeight - 0.5) * 2
-      setTilt({ x, y })
-    }
-    window.addEventListener('mousemove', handle)
-    return () => window.removeEventListener('mousemove', handle)
-  }, [])
+  // Very light pointer parallax on the code card (desktop only).
+  useGSAP(() => {
+    const el = visualRef.current
+    const mm = gsap.matchMedia()
+    mm.add(`${MQ.finePointer} and ${MQ.motionOK}`, () => {
+      const xTo = gsap.quickTo(el, 'x', { duration: 1, ease: 'power3.out' })
+      const yTo = gsap.quickTo(el, 'y', { duration: 1, ease: 'power3.out' })
+      const onMove = (e) => {
+        xTo((e.clientX / window.innerWidth - 0.5) * 16)
+        yTo((e.clientY / window.innerHeight - 0.5) * 16)
+      }
+      window.addEventListener('pointermove', onMove, { passive: true })
+      return () => window.removeEventListener('pointermove', onMove)
+    })
+    return () => mm.revert()
+  })
 
   return (
     <section
       id="home"
-      ref={sceneRef}
       className="relative flex min-h-screen items-center overflow-hidden pt-24"
     >
-      {/* Animated gradient backdrop */}
+      {/* Soft static gradient backdrop */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-radial-glow" />
-        <motion.div
-          className="absolute -top-40 left-1/4 h-[32rem] w-[32rem] rounded-full bg-primary/20 blur-[120px]"
-          animate={{ x: [0, 40, 0], y: [0, 30, 0] }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        <motion.div
-          className="absolute bottom-0 right-0 h-[28rem] w-[28rem] rounded-full bg-purple/20 blur-[120px]"
-          animate={{ x: [0, -30, 0], y: [0, -20, 0] }}
-          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-        />
+        <div className="absolute -top-40 left-1/4 h-[32rem] w-[32rem] rounded-full bg-primary/15 blur-[120px]" />
+        <div className="absolute bottom-0 right-0 h-[28rem] w-[28rem] rounded-full bg-purple/15 blur-[120px]" />
       </div>
 
       <div className="section-container grid grid-cols-1 items-center gap-14 lg:grid-cols-2">
         {/* Left */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: 'easeOut' }}
-        >
-          <span className="eyebrow mb-5 inline-flex items-center gap-2 rounded-full border border-border px-3 py-1">
+        <div>
+          <span data-intro="eyebrow" className="eyebrow mb-5 inline-flex items-center gap-2 rounded-full border border-border px-3 py-1">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
             Software Developer
           </span>
 
           <h1 className="font-display text-4xl font-bold leading-[1.1] text-slate-900 sm:text-5xl lg:text-6xl">
-            Hi, I'm <span className="gradient-text">Chandra Prakash</span>
+            {HEADING.map((word, i) => (
+              <span key={word.text} className="-mb-[0.12em] inline-block overflow-hidden pb-[0.12em] align-bottom">
+                <span data-intro-word className={`inline-block ${word.accent ? 'gradient-text' : ''}`}>
+                  {word.text}
+                </span>
+                {i < HEADING.length - 1 && '\u00A0'}
+              </span>
+            ))}
           </h1>
 
-          <div className="mt-4 h-10 font-display text-xl font-medium text-primary sm:text-2xl">
+          <div data-intro="sub" className="mt-4 h-10 font-display text-xl font-medium text-primary sm:text-2xl">
             <TypeAnimation
               sequence={[
                 'MERN Stack Developer', 1800,
@@ -71,68 +87,64 @@ export default function Hero() {
             />
           </div>
 
-          <p className="mt-6 max-w-lg text-base leading-relaxed text-text">
+          <p data-intro="text" className="mt-6 max-w-lg text-base leading-relaxed text-text">
             My name is Chandra Prakash Singh, a MERN Stack Developer skilled in MongoDB, Express.js, React.js, and Node.js. I have worked on the UTCI project for *IIT Roorkee, gaining hands-on experience in building scalable, real-world web applications.
 
           </p>
 
-          <div className="mt-9 flex flex-wrap items-center gap-4">
-            <a
-              href="/resume.pdf"
-              download
-              className="group inline-flex items-center gap-2 rounded-full bg-brand-gradient px-6 py-3.5 text-sm font-semibold text-bg shadow-glow transition-transform hover:scale-105"
-            >
-              <Download size={17} strokeWidth={2.5} />
-              Download Resume
-            </a>
-            <button
-              onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })}
-              className="group inline-flex items-center gap-2 rounded-full border border-border px-6 py-3.5 text-sm font-semibold text-slate-900 transition-colors hover:border-primary hover:text-primary"
-            >
-              View Projects
-              <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-            </button>
+          <div data-intro="cta" className="mt-9 flex flex-wrap items-center gap-4">
+            <div>
+              <a
+                ref={primaryRef}
+                href="/resume.pdf"
+                download
+                className="btn-press group inline-flex items-center gap-2 rounded-full bg-brand-gradient px-6 py-3.5 text-sm font-semibold text-bg shadow-glow hover:shadow-[0_10px_40px_rgba(8,111,253,0.35)]"
+              >
+                <Download size={17} strokeWidth={2.5} className="transition-transform duration-300 ease-premium group-hover:translate-y-0.5" />
+                Download Resume
+              </a>
+            </div>
+            <div>
+              <button
+                ref={secondaryRef}
+                onClick={() => scrollToSection('projects')}
+                className="btn-press group inline-flex items-center gap-2 rounded-full border border-border bg-white/60 px-6 py-3.5 text-sm font-semibold text-slate-900 hover:border-primary hover:bg-white hover:text-primary"
+              >
+                View Projects
+                <ArrowRight size={16} className="transition-transform duration-300 ease-premium group-hover:translate-x-1" />
+              </button>
+            </div>
           </div>
 
-          <div className="mt-10 flex items-center gap-5">
-            {[
-              { icon: Github, href: 'https://github.com' },
-              { icon: Linkedin, href: 'https://linkedin.com' },
-              { icon: Instagram, href: 'https://instagram.com' },
-            ].map(({ icon: Icon, href }, i) => (
+          <div data-intro="social" className="mt-10 flex items-center gap-5">
+            {SOCIALS.map(({ icon: Icon, href, label }) => (
               <a
-                key={i}
+                key={label}
                 href={href}
                 target="_blank"
                 rel="noreferrer"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-muted transition-all hover:-translate-y-1 hover:border-primary hover:text-primary"
+                aria-label={label}
+                className="icon-link flex h-10 w-10 items-center justify-center rounded-full border border-border text-muted hover:border-primary hover:text-primary"
               >
                 <Icon size={17} />
               </a>
             ))}
           </div>
-        </motion.div>
+        </div>
 
         {/* Right — illustration */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
-          className="relative mx-auto hidden aspect-square w-full max-w-md items-center justify-center sm:flex"
-          style={{
-            transform: `perspective(1000px) rotateY(${tilt.x * 6}deg) rotateX(${-tilt.y * 6}deg)`,
-            transition: 'transform 0.2s ease-out',
-          }}
+        <div
+          data-intro="visual"
+          className="relative mx-auto hidden aspect-square w-full max-w-md sm:block"
         >
-          {/* rotating conic glow ring */}
-          <motion.div
-            className="absolute inset-0 -z-10 rounded-[2rem] opacity-60 blur-2xl"
+        <div ref={visualRef} className="relative flex h-full w-full items-center justify-center">
+          {/* soft glow */}
+          <div
+            className="absolute inset-0 -z-10 rounded-[2rem] opacity-40 blur-2xl"
             style={{
               background:
-                'conic-gradient(from 0deg, #086FFD, #032487, transparent, #086FFD)',
+                'conic-gradient(from 140deg, #086FFD, #032487, transparent, #086FFD)',
             }}
-            animate={{ rotate: 360 }}
-            transition={{ duration: 14, repeat: Infinity, ease: 'linear' }}
           />
 
           <div className="glass gradient-border relative flex h-full w-full items-center justify-center rounded-3xl shadow-glow">
@@ -156,12 +168,6 @@ export default function Hero() {
 
               {/* code body */}
               <pre className="relative overflow-hidden px-4 py-4 font-mono text-[11px] leading-relaxed sm:text-xs">
-                {/* shine sweep */}
-                <motion.span
-                  className="pointer-events-none absolute inset-y-0 left-0 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-                  animate={{ x: ['-120%', '340%'] }}
-                  transition={{ duration: 3.2, repeat: Infinity, repeatDelay: 2.4, ease: 'easeInOut' }}
-                />
                 <code>
                   <span className="mr-3 select-none text-slate-600">1</span>
                   <span className="text-[#569CD6]">import</span>{' '}
@@ -242,11 +248,7 @@ export default function Hero() {
                   <span className="text-[#569CD6]">default</span>{' '}
                   <span className="text-[#9CDCFE]">dev</span>
                   <span className="text-slate-300">;</span>
-                  <motion.span
-                    className="ml-0.5 inline-block h-3.5 w-[6px] translate-y-[2px] bg-primary"
-                    animate={{ opacity: [1, 1, 0, 0] }}
-                    transition={{ duration: 1, repeat: Infinity, times: [0, 0.5, 0.5, 1] }}
-                  />
+                  <span className="ml-0.5 inline-block h-3.5 w-[6px] translate-y-[2px] animate-blink bg-primary" />
                 </code>
               </pre>
 
@@ -258,40 +260,27 @@ export default function Hero() {
               </div>
             </div>
 
-            <motion.div
-              className="absolute -top-6 -right-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-card shadow-glow"
-              animate={{ y: [0, -14, 0], rotate: [0, 6, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-            >
+            <div className="absolute -top-6 -right-6 flex h-16 w-16 animate-float-soft items-center justify-center rounded-2xl bg-card shadow-glow">
               <span className="font-display text-lg font-bold text-primary">JS</span>
-            </motion.div>
-            <motion.div
-              className="absolute -bottom-8 -left-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-card shadow-glow-purple"
-              animate={{ y: [0, 14, 0], rotate: [0, -6, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-            >
+            </div>
+            <div className="absolute -bottom-8 -left-6 flex h-16 w-16 animate-float-soft items-center justify-center rounded-2xl bg-card shadow-glow-purple [animation-delay:-2s]">
               <span className="font-display text-lg font-bold text-purple">DB</span>
-            </motion.div>
-            <motion.div
-              className="absolute -bottom-4 right-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-card shadow-card"
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
-            >
+            </div>
+            <div className="absolute -bottom-4 right-2 flex h-12 w-12 animate-float-soft items-center justify-center rounded-2xl bg-card shadow-card [animation-delay:-4s]">
               <span className="font-display text-sm font-bold text-bluesec">API</span>
-            </motion.div>
+            </div>
           </div>
-        </motion.div>
+        </div>
+        </div>
       </div>
 
-      <motion.button
-        onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
+      <button
+        onClick={() => scrollToSection('about')}
         aria-label="Scroll to About section"
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-muted"
-        animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-muted transition-colors hover:text-primary"
       >
-        <ChevronDown size={26} />
-      </motion.button>
+        <ChevronDown size={26} className="animate-nudge" />
+      </button>
     </section>
   )
 }

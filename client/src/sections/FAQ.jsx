@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus } from 'lucide-react'
+import { useReveal } from '../animations/scrollReveal'
 
 const FAQS = [
   {
@@ -27,15 +28,20 @@ const FAQS = [
 
 function FaqItem({ item, isOpen, onClick }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-card">
+    <div
+      className={`overflow-hidden rounded-2xl border bg-card transition-[border-color,box-shadow] duration-300 ${
+        isOpen ? 'border-primary/30 shadow-card' : 'border-border hover:border-primary/30'
+      }`}
+    >
       <button
         onClick={onClick}
+        aria-expanded={isOpen}
         className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
       >
         <span className="font-display text-sm font-semibold text-slate-900 sm:text-base">{item.q}</span>
         <motion.span
           animate={{ rotate: isOpen ? 45 : 0 }}
-          transition={{ duration: 0.25 }}
+          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary text-primary"
         >
           <Plus size={16} />
@@ -47,7 +53,7 @@ function FaqItem({ item, isOpen, onClick }) {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             className="overflow-hidden"
           >
             <p className="px-6 pb-5 text-sm leading-relaxed text-muted">{item.a}</p>
@@ -60,17 +66,13 @@ function FaqItem({ item, isOpen, onClick }) {
 
 export default function FAQ() {
   const [open, setOpen] = useState(0)
+  const scope = useReveal()
 
   return (
-    <section id="faq" className="bg-secondary/30 py-28">
+    <section ref={scope} id="faq" className="bg-secondary/30 py-28">
       <div className="section-container">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-[0.8fr_1.2fr]">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.6 }}
-          >
+          <div data-reveal="up">
             <span className="eyebrow">FAQ</span>
             <h2 className="mt-3 font-display text-3xl font-bold text-slate-900 sm:text-4xl">
               Frequently asked <span className="gradient-text">questions</span>
@@ -79,9 +81,9 @@ export default function FAQ() {
               Everything you might want to know before reaching out. Still curious? Send a message —
               I reply fast.
             </p>
-          </motion.div>
+          </div>
 
-          <div className="flex flex-col gap-4">
+          <div data-reveal-stagger className="flex flex-col gap-4">
             {FAQS.map((item, i) => (
               <FaqItem
                 key={item.q}

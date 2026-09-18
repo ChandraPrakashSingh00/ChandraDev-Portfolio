@@ -171,7 +171,7 @@ export default function AIAssistant() {
             </div>
 
             {/* messages */}
-            <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-card/40 px-4 py-4">
+            <div ref={scrollRef} data-lenis-prevent className="flex-1 space-y-3 overflow-y-auto bg-card/40 px-4 py-4">
               {messages.map((m, i) => (
                 <div
                   key={i}

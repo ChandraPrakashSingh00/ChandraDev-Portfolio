@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { scrollToSection } from '../../animations/smoothScroll'
 import {
   Command,
   Search,
@@ -38,7 +39,7 @@ export default function CommandPalette() {
       navigate('/', { state: { scrollTo: id } })
       return
     }
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+    scrollToSection(id)
   }
 
   const commands = useMemo(
@@ -219,7 +220,7 @@ export default function CommandPalette() {
                 </kbd>
               </div>
 
-              <div className="max-h-80 overflow-y-auto p-2">
+              <div data-lenis-prevent className="max-h-80 overflow-y-auto p-2">
                 {filtered.length === 0 && (
                   <p className="px-3 py-8 text-center text-sm text-muted">No matching commands.</p>
                 )}

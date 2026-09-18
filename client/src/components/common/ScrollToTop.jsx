@@ -1,13 +1,31 @@
-import { motion, useScroll, useSpring } from 'framer-motion'
+import { useRef } from 'react'
+import { gsap, useGSAP } from '../../animations/gsap'
 
 export function ScrollProgressBar() {
-  const { scrollYProgress } = useScroll()
-  const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 25, restDelta: 0.001 })
+  const barRef = useRef(null)
+
+  useGSAP(() => {
+    gsap.fromTo(
+      barRef.current,
+      { scaleX: 0 },
+      {
+        scaleX: 1,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: document.documentElement,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 0.3,
+        },
+      }
+    )
+  })
 
   return (
-    <motion.div
-      className="fixed top-0 left-0 right-0 h-[3px] origin-left bg-brand-gradient z-[60]"
-      style={{ scaleX }}
+    <div
+      ref={barRef}
+      aria-hidden="true"
+      className="pointer-events-none fixed inset-x-0 top-0 z-[60] h-[2px] origin-left scale-x-0 bg-brand-gradient"
     />
   )
 }

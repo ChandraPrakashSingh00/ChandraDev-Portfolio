@@ -1,64 +1,79 @@
-import { useEffect, useRef } from 'react'
+import { useRef, useState } from 'react'
+import { gsap, useGSAP, MQ } from '../../animations/gsap'
 
+const INTERACTIVE = 'a, button, [role="button"], input, textarea, select, label, [data-cursor]'
+
+/**
+ * Subtle trailing ring that complements (never replaces) the native cursor.
+ * States: default ring → grows over interactive elements → becomes a "View"
+ * pill over elements marked `data-cursor="view"`. Desktop + motion only.
+ */
 export default function CustomCursor() {
-  const dotRef = useRef(null)
-  const glowRef = useRef(null)
+  const ringRef = useRef(null)
+  const [state, setState] = useState('default') // default | hover | view
 
-  useEffect(() => {
-    if (window.matchMedia('(pointer: coarse)').matches) return
+  useGSAP(() => {
+    const ring = ringRef.current
+    const mm = gsap.matchMedia()
 
-    const dot = dotRef.current
-    const glow = glowRef.current
-    let mx = window.innerWidth / 2
-    let my = window.innerHeight / 2
-    let gx = mx
-    let gy = my
+    mm.add(`${MQ.finePointer} and ${MQ.motionOK}`, () => {
+      gsap.set(ring, { xPercent: -50, yPercent: -50, autoAlpha: 0 })
+      const xTo = gsap.quickTo(ring, 'x', { duration: 0.45, ease: 'power3.out' })
+      const yTo = gsap.quickTo(ring, 'y', { duration: 0.45, ease: 'power3.out' })
+      let visible = false
 
-    const onMove = (e) => {
-      mx = e.clientX
-      my = e.clientY
-      if (dot) {
-        dot.style.transform = `translate(${mx}px, ${my}px)`
+      const onMove = (e) => {
+        if (!visible) {
+          gsap.set(ring, { x: e.clientX, y: e.clientY })
+          gsap.to(ring, { autoAlpha: 1, duration: 0.3 })
+          visible = true
+        }
+        xTo(e.clientX)
+        yTo(e.clientY)
       }
-    }
+      const onOver = (e) => {
+        const target = e.target.closest?.(INTERACTIVE)
+        if (!target) return setState('default')
+        setState(target.dataset.cursor === 'view' ? 'view' : 'hover')
+      }
+      const onLeaveWindow = () => {
+        gsap.to(ring, { autoAlpha: 0, duration: 0.3 })
+        visible = false
+      }
 
-    const onDown = () => glow?.classList.add('scale-75')
-    const onUp = () => glow?.classList.remove('scale-75')
+      window.addEventListener('pointermove', onMove, { passive: true })
+      document.addEventListener('pointerover', onOver, { passive: true })
+      document.documentElement.addEventListener('pointerleave', onLeaveWindow)
+      return () => {
+        window.removeEventListener('pointermove', onMove)
+        document.removeEventListener('pointerover', onOver)
+        document.documentElement.removeEventListener('pointerleave', onLeaveWindow)
+      }
+    })
 
-    let raf
-    const loop = () => {
-      gx += (mx - gx) * 0.12
-      gy += (my - gy) * 0.12
-      if (glow) glow.style.transform = `translate(${gx}px, ${gy}px)`
-      raf = requestAnimationFrame(loop)
-    }
-    raf = requestAnimationFrame(loop)
+    return () => mm.revert()
+  })
 
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('mousedown', onDown)
-    window.addEventListener('mouseup', onUp)
-    return () => {
-      window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('mousedown', onDown)
-      window.removeEventListener('mouseup', onUp)
-      cancelAnimationFrame(raf)
-    }
-  }, [])
-
-  if (typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches) {
-    return null
-  }
+  const size =
+    state === 'view'
+      ? 'h-16 w-16 border-transparent bg-primary shadow-glow'
+      : state === 'hover'
+        ? 'h-11 w-11 border-primary/50 bg-primary/5'
+        : 'h-7 w-7 border-primary/40 bg-transparent'
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-[90] hidden md:block" aria-hidden="true">
-      <div
-        ref={glowRef}
-        className="absolute -left-24 -top-24 h-48 w-48 rounded-full bg-primary/10 blur-3xl transition-transform duration-300 ease-out"
-      />
-      <div
-        ref={dotRef}
-        className="absolute -left-1 -top-1 h-2 w-2 rounded-full bg-primary"
-      />
+    <div
+      ref={ringRef}
+      aria-hidden="true"
+      className={`pointer-events-none invisible fixed left-0 top-0 z-[90] hidden items-center justify-center rounded-full border transition-[width,height,background-color,border-color] duration-300 ease-premium md:flex ${size}`}
+    >
+      <span
+        className={`text-[11px] font-semibold tracking-wide text-white transition-opacity duration-200 ${
+          state === 'view' ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        View
+      </span>
     </div>
   )
 }

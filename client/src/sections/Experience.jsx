@@ -1,6 +1,8 @@
-import { motion } from 'framer-motion'
 import { Building2 } from 'lucide-react'
 import { experience } from '../data/experience'
+import { gsap, useGSAP, MQ } from '../animations/gsap'
+import { useReveal } from '../animations/scrollReveal'
+import { DURATION, EASE, REVEAL_START } from '../animations/tokens'
 
 const TYPE_META = {
   work: { label: 'Professional Experience', badge: 'border-primary/30 bg-primary/10 text-primary' },
@@ -9,9 +11,41 @@ const TYPE_META = {
 }
 
 export default function Experience() {
+  const scope = useReveal()
+
+  // Rail fills as the timeline scrolls past; items slide in from the left.
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia()
+      mm.add(MQ.motionOK, () => {
+        gsap.fromTo(
+          '[data-timeline-fill]',
+          { scaleY: 0 },
+          {
+            scaleY: 1,
+            ease: 'none',
+            scrollTrigger: { trigger: '[data-timeline]', start: 'top 70%', end: 'bottom 70%', scrub: 0.5 },
+          }
+        )
+        gsap.utils.toArray('[data-timeline-item]').forEach((item) => {
+          gsap.from(item, {
+            autoAlpha: 0,
+            x: -24,
+            duration: DURATION.reveal,
+            ease: EASE.out,
+            clearProps: 'transform,opacity,visibility',
+            scrollTrigger: { trigger: item, start: REVEAL_START, once: true },
+          })
+        })
+      })
+      return () => mm.revert()
+    },
+    { scope }
+  )
+
   return (
-    <section id="experience" className="section-container py-28">
-      <div className="mx-auto max-w-2xl text-center">
+    <section ref={scope} id="experience" className="section-container py-28">
+      <div data-reveal="up" className="mx-auto max-w-2xl text-center">
         <span className="eyebrow">Experience</span>
         <h2 className="mt-3 font-display text-3xl font-bold text-slate-900 sm:text-4xl">
           My <span className="gradient-text">professional journey</span>
@@ -19,38 +53,28 @@ export default function Experience() {
         <p className="mt-4 text-text">Work, education, and milestones that shaped how I build.</p>
       </div>
 
-      <div className="relative mx-auto mt-16 max-w-3xl">
+      <div data-timeline className="relative mx-auto mt-16 max-w-3xl">
         {/* Timeline rail */}
         <div className="absolute left-[19px] top-2 h-[calc(100%-1rem)] w-px bg-border" />
-        <motion.div
-          className="absolute left-[19px] top-2 w-px origin-top bg-brand-gradient"
-          initial={{ height: 0 }}
-          whileInView={{ height: 'calc(100% - 1rem)' }}
-          viewport={{ once: true, margin: '-100px' }}
-          transition={{ duration: 1.4, ease: 'easeInOut' }}
+        <div
+          data-timeline-fill
+          className="absolute left-[19px] top-2 h-[calc(100%-1rem)] w-px origin-top bg-brand-gradient"
         />
 
         <div className="space-y-8">
-          {experience.map((item, i) => {
+          {experience.map((item) => {
             const meta = TYPE_META[item.type] ?? TYPE_META.work
             const isCurrent = /present/i.test(item.period)
 
             return (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-80px' }}
-                transition={{ duration: 0.5, delay: i * 0.05 }}
-                className="relative pl-12"
-              >
+              <div key={item.id} data-timeline-item className="relative pl-12">
                 {/* Node */}
                 <span className="absolute left-[19px] top-1.5 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-xl border border-border bg-card shadow-card">
                   <item.icon size={16} className="text-primary" />
                 </span>
 
                 {/* Card */}
-                <div className="group rounded-2xl border border-border bg-card p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-glow">
+                <div className="card-lift group rounded-2xl border border-border bg-card p-6 shadow-card hover:border-primary/40">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <h3 className="font-display text-lg font-semibold text-slate-900">{item.title}</h3>
@@ -81,7 +105,7 @@ export default function Experience() {
                     {meta.label}
                   </span>
                 </div>
-              </motion.div>
+              </div>
             )
           })}
         </div>

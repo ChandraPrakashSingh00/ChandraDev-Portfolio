@@ -13,16 +13,11 @@ export default function WhatsAppButton() {
       target="_blank"
       rel="noreferrer"
       aria-label="Chat on WhatsApp"
-      className="group fixed bottom-7 left-7 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-[#25D366] text-white shadow-glow"
-      initial={{ opacity: 0, scale: 0.6, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ delay: 0.6, duration: 0.4, ease: 'easeOut' }}
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.92 }}
+      className="btn-press group fixed bottom-7 left-7 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_8px_24px_rgba(37,211,102,0.35)]"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 1.4, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
     >
-      {/* pulsing ring to draw attention */}
-      <span className="absolute inset-0 -z-10 animate-ping rounded-full bg-[#25D366] opacity-40" />
-
       <FaWhatsapp size={20} />
 
       {/* tooltip */}
